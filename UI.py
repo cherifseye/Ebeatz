@@ -1,4 +1,8 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QFrame, QComboBox, QPushButton
+from PyQt5.QtWidgets import (QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QFrame, 
+                            QComboBox, QPushButton, QLabel, QCheckBox, QDialog, QLineEdit, 
+                            QRadioButton, QSpacerItem, QSizePolicy)
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon, QFont
 import pyqtgraph as pg
 import serial
 import serialPort
@@ -10,6 +14,7 @@ class EbeatzController(QMainWindow):
         self.initUI()
         self.setMainWidget()
         self.setCentralRightFrame()
+        self.setCentralLeftFrame()
         
     
     def initUI(self):
@@ -31,7 +36,7 @@ class EbeatzController(QMainWindow):
         self.centralLayout = QHBoxLayout(self.centralWidget)
 
         self.centralLeftFrame = QFrame(self.centralWidget)
-        self.centralLeftFrame.setFixedWidth(270) # Fixing the width of the left frame whatever the size of the win
+        self.centralLeftFrame.setFixedWidth(200) # Fixing the width of the left frame whatever the size of the win
         self.centralLeftFrame.setFrameShape(QFrame.StyledPanel)
         self.centralLeftFrame.setFrameShadow(QFrame.Raised)
         self.centralLeftFrame.setStyleSheet(
@@ -77,6 +82,7 @@ class EbeatzController(QMainWindow):
             "QPushButton"
             "{"
             "background-color: gray;"
+            "color: white;"
             "border-radius: 10px;"
             "}"
             "QPushButton::pressed"
@@ -95,6 +101,7 @@ class EbeatzController(QMainWindow):
             "QPushButton"
             "{"
             "background-color:gray;"
+            "color:white;"
             "border-radius: 10px;"
             "}"
             "QPushButton::pressed"
@@ -126,3 +133,203 @@ class EbeatzController(QMainWindow):
     def endCommunication(self):
         self.EbeatzSerial.__closePort__()
         print(self.EbeatzSerial.portIsOpen())
+
+
+    def setCentralLeftFrame(self):
+
+        frequencyFrame = QFrame(self.centralLeftFrame)
+        frequencyFrame.setStyleSheet(
+            "background-color: #1c2125;"
+        )
+        frequencyFrame.setFixedHeight(80)
+        frequencyFrame.setContentsMargins(0, 0, 0, 0)
+        frequencyLayout = QHBoxLayout(frequencyFrame)
+        self.centralLeftLayout.addWidget(frequencyFrame)
+
+        frequencyDiplayFrame = QFrame(frequencyFrame)
+        frequencyDiplayFrame.setContentsMargins(0, 0, 0, 0)
+        frequencyDiplayFrame.setFixedWidth(170)
+        frequencyDiplayFrame.setMinimumHeight(60)
+        frequencyLayout.addWidget(frequencyDiplayFrame)
+        frequencyDisplayLayout= QVBoxLayout(frequencyDiplayFrame)
+
+        frequencyTitle = QLabel(frequencyDiplayFrame)
+        frequencyTitle.setText("Frequency")
+        frequencyTitle.setStyleSheet(
+            "color: white;"
+        )
+        frequencyDisplayLayout.addWidget(frequencyTitle)
+        frequencyTitle.setAlignment(Qt.AlignCenter)
+
+        self.frequenceValueText = QLabel(frequencyDiplayFrame)
+        self.frequenceValueText.setStyleSheet(
+            "color:white;"
+        )
+        self.frequenceValueText.setAlignment(Qt.AlignCenter)
+        self.frequenceValueText.setText("90 Hz")
+        frequencyDisplayLayout.addWidget(self.frequenceValueText)
+
+        setFrequencyValue = QPushButton(frequencyFrame)
+        frequencyLayout.addWidget(setFrequencyValue)
+        setFrequencyValue.setIcon(QIcon("Icons/swipe-right.png"))
+        setFrequencyValue.setFlat(True)
+        setFrequencyValue.setStyleSheet(
+            "background-color: #1c2125;"
+        )
+        setFrequencyValue.clicked.connect(self.frequencyDialogSets)
+
+        modeHarmoniqueFrame = QFrame(self.centralLeftFrame)
+        self.centralLeftLayout.addWidget(modeHarmoniqueFrame)
+        modeHarmoniqueFrame.setStyleSheet(
+            "background-color: #1c2125;"
+        )
+        modeHarmoniqueFrame.setContentsMargins(0, 0, 0, 0)
+        modeHarmoniqueFrame.setFixedHeight(80)
+        modeHarmoniqueLayout = QHBoxLayout(modeHarmoniqueFrame)
+
+        modeHarmoniqueDisplayFrame = QFrame(modeHarmoniqueFrame)
+        modeHarmoniqueDisplayFrame.setContentsMargins(0, 0, 0, 0)
+        modeHarmoniqueDisplayFrame.setMinimumHeight(60)
+        modeHarmoniqueDisplayFrame.setFixedWidth(170)
+        modeHarmoniqueLayout.addWidget(modeHarmoniqueDisplayFrame)
+        modeHarmoniqueDisplayLayout = QVBoxLayout(modeHarmoniqueDisplayFrame)
+
+        modeTitle = QLabel(modeHarmoniqueDisplayFrame)
+        modeTitle.setStyleSheet(
+            "color: white;"
+        )
+        modeTitle.setText("Mode")
+        modeTitle.setAlignment(Qt.AlignCenter)
+        modeHarmoniqueDisplayLayout.addWidget(modeTitle)
+
+        self.modeLevel = QLabel(modeHarmoniqueDisplayFrame)
+        self.modeLevel.setStyleSheet(
+            "color:white;"
+        )
+        self.modeLevel.setAlignment(Qt.AlignCenter)
+        modeHarmoniqueDisplayLayout.addWidget(self.modeLevel)
+        self.modeLevel.setText("1ere Harmonique")
+        
+        setModeLevel = QPushButton(modeHarmoniqueFrame)
+        setModeLevel.setIcon(QIcon("Icons/swipe-right.png"))
+        setModeLevel.setFlat(True)
+        setModeLevel.setStyleSheet("background-color: #1c2125;")
+        setModeLevel.clicked.connect(self.ModeDialogSets)
+        modeHarmoniqueLayout.addWidget(setModeLevel)
+
+        AutoAccordFrame = QFrame(self.centralLeftFrame)
+        AutoAccordFrame.setContentsMargins(0, 0, 0, 0)
+        AutoAccordFrame.setFixedHeight(80)
+        self.centralLeftLayout.addWidget(AutoAccordFrame)
+        AutoAccordFrame.setStyleSheet("background-color: #1c2125;")
+        AutoAccordLayout = QVBoxLayout(AutoAccordFrame)
+
+        autoAccordTitle = QLabel(AutoAccordFrame)
+        autoAccordTitle.setStyleSheet("color:white;")
+        autoAccordTitle.setText("Auto Accord")
+        AutoAccordLayout.addWidget(autoAccordTitle)
+        autoAccordTitle.setAlignment(Qt.AlignCenter)
+        
+        activateAutoAccordButton = QCheckBox("Activate Auto Accord")
+        AutoAccordLayout.addWidget(activateAutoAccordButton)
+        activateAutoAccordButton.setStyleSheet(
+            "color: white;"
+            "QCheckBox::indicator"
+            "{"
+            "color:blue;"
+            "}"
+        )
+
+        spaceItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.centralLeftLayout.addItem(spaceItem)
+    
+    def frequencyDialogSets(self):
+        frequencyDialog = QDialog(self)
+        frequencyDialog.setWindowTitle("Set Frequency")
+        frequencyDialog.setStyleSheet('background-color: black')
+        #self.setGeometry(100, 100, 100, 100)
+
+        vbox = QVBoxLayout(frequencyDialog)
+        self.line_edit = QLineEdit(frequencyDialog)
+        self.line_edit.setFixedHeight(60)
+        self.line_edit.setStyleSheet(
+            "background-color: black;"
+            "color: white;"
+            "border: none;"
+            "font-weight: bold;"
+            "font-size: 20px;"
+        )
+        vbox.addWidget(self.line_edit)
+  
+        grid_layout = [
+            ['7', '8', '9'],
+            ['4', '5', '6'],
+            ['1', '2', '3'],
+            ['0', '.', 'OK']
+        ]
+        font  = QFont()
+        font.setBold(True)
+        font.setPointSize(14)
+
+        for row in grid_layout:
+            hbox = QHBoxLayout()
+            for item in row:
+                button = QPushButton(item)
+                button.setFixedSize(50, 50)
+                button.setStyleSheet(
+                    "QPushButton"
+                    "{"
+                    "border-radius: 25px;"
+                    "background-color: gray;"
+                    "color: white;"
+                    "}"
+                )
+                if item == "OK":
+                    button.setStyleSheet(
+                        "QPushButton"
+                        "{"
+                        "background-color: orange;"
+                        "border-radius: 25px;"
+                        "color: white;"
+                        "}"
+                    )
+                button.setFont(font)
+                button.clicked.connect(self.button_clicked)
+                hbox.addWidget(button)
+            vbox.addLayout(hbox)
+
+    
+        frequencyDialog.exec_()
+
+    def ModeDialogSets(self):
+        modeDialog = QDialog(self)
+        modeDialog.setWindowTitle("Set Mode")
+        modeDialog.setStyleSheet("background-color: #1c2125;")
+
+        self.radio1 = QRadioButton("Harmonique 1")
+        self.radio1.setStyleSheet("color:white")
+        self.radio2 = QRadioButton("Harmonique 2")
+        self.radio2.setStyleSheet("color:white")
+
+        
+        # Create "Apply" button
+        self.apply_button = QPushButton("Apply")
+        self.apply_button.setStyleSheet("color:white")
+        self.apply_button.setFlat(True)
+        
+        # Create layout and add widgets
+        layout = QVBoxLayout(modeDialog)
+        layout.addWidget(self.radio1)
+        layout.addWidget(self.radio2)
+        layout.addWidget(self.apply_button)
+        
+        modeDialog.exec_()
+         
+    
+    def button_clicked(self):
+        button = self.sender()
+        if button.text() == 'OK':
+            pass
+        
+        else:
+            self.line_edit.setText(self.line_edit.text() + button.text())
