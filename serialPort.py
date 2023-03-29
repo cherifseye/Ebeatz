@@ -35,7 +35,7 @@ class SerialPort():
     def readline(self):
         data = self.ser.readline().decode('utf-8')
         print(data)
-
+    
 '''
 TestSp = SerialPort()
 ser = serial.Serial('/dev/ttyACM0', baudrate=9600)

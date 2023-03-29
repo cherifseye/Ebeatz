@@ -5,7 +5,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QFont
 import pyqtgraph as pg
 import serial
-import serialPort
+from serialPort import SerialPort
+
 
 class EbeatzController(QMainWindow):
 
@@ -23,7 +24,7 @@ class EbeatzController(QMainWindow):
         self.setStyleSheet(
             "background-color: #1c2125;"
         )
-        self.EbeatzSerial = serialPort.SerialPort()
+        self.EbeatzSerial = SerialPort()
     def setMainWidget(self):
         '''
         In these function we set a main widget and a central Horizontal layout in order to create the two main frame
@@ -75,7 +76,7 @@ class EbeatzController(QMainWindow):
         self.portLayout.addWidget(self.listPortAvalaible)
 
         self.openCommunication = QPushButton(self.portFrame)
-        self.openCommunication.setText("Open Port")
+        self.openCommunication.setText("Ouvrir Port")
         self.openCommunication.setMinimumHeight(30)
         self.openCommunication.clicked.connect(self.establishCommunication)
         self.openCommunication.setStyleSheet(
@@ -93,7 +94,7 @@ class EbeatzController(QMainWindow):
         self.portLayout.addWidget(self.openCommunication)
         
         self.closeCommunication = QPushButton(self.portFrame)
-        self.closeCommunication.setText("Close")
+        self.closeCommunication.setText("Fermer le Port")
         self.closeCommunication.setMinimumHeight(30)
         self.closeCommunication.clicked.connect(self.endCommunication)
         self.portLayout.addWidget(self.closeCommunication)
@@ -128,7 +129,7 @@ class EbeatzController(QMainWindow):
     def establishCommunication(self):
         ser = serial.Serial(self.listPortAvalaible.currentText())
         self.EbeatzSerial.ser = ser
-        print(self.EbeatzSerial.portIsOpen())
+        #print(self.EbeatzSerial.portIsOpen())
 
     def endCommunication(self):
         self.EbeatzSerial.__closePort__()
@@ -154,7 +155,7 @@ class EbeatzController(QMainWindow):
         frequencyDisplayLayout= QVBoxLayout(frequencyDiplayFrame)
 
         frequencyTitle = QLabel(frequencyDiplayFrame)
-        frequencyTitle.setText("Frequency")
+        frequencyTitle.setText("Frequence")
         frequencyTitle.setStyleSheet(
             "color: white;"
         )
@@ -185,37 +186,20 @@ class EbeatzController(QMainWindow):
         )
         modeHarmoniqueFrame.setContentsMargins(0, 0, 0, 0)
         modeHarmoniqueFrame.setFixedHeight(80)
-        modeHarmoniqueLayout = QHBoxLayout(modeHarmoniqueFrame)
-
-        modeHarmoniqueDisplayFrame = QFrame(modeHarmoniqueFrame)
-        modeHarmoniqueDisplayFrame.setContentsMargins(0, 0, 0, 0)
-        modeHarmoniqueDisplayFrame.setMinimumHeight(60)
-        modeHarmoniqueDisplayFrame.setFixedWidth(170)
-        modeHarmoniqueLayout.addWidget(modeHarmoniqueDisplayFrame)
-        modeHarmoniqueDisplayLayout = QVBoxLayout(modeHarmoniqueDisplayFrame)
-
-        modeTitle = QLabel(modeHarmoniqueDisplayFrame)
-        modeTitle.setStyleSheet(
-            "color: white;"
-        )
-        modeTitle.setText("Mode")
+        modeHarmoniqueLayout = QVBoxLayout(modeHarmoniqueFrame)
+        modeTitle = QLabel(modeHarmoniqueFrame)
+        modeTitle.setText("Mode Harmonique")
+        modeTitle.setStyleSheet("color:white;")
+        modeHarmoniqueLayout.addWidget(modeTitle)
         modeTitle.setAlignment(Qt.AlignCenter)
-        modeHarmoniqueDisplayLayout.addWidget(modeTitle)
 
-        self.modeLevel = QLabel(modeHarmoniqueDisplayFrame)
-        self.modeLevel.setStyleSheet(
+        second_Harmonique = QRadioButton(modeHarmoniqueFrame)
+        modeHarmoniqueLayout.addWidget(second_Harmonique)
+        second_Harmonique.setText("2eme Harmonique")
+        second_Harmonique.setStyleSheet(
             "color:white;"
         )
-        self.modeLevel.setAlignment(Qt.AlignCenter)
-        modeHarmoniqueDisplayLayout.addWidget(self.modeLevel)
-        self.modeLevel.setText("1ere Harmonique")
-        
-        setModeLevel = QPushButton(modeHarmoniqueFrame)
-        setModeLevel.setIcon(QIcon("Icons/swipe-right.png"))
-        setModeLevel.setFlat(True)
-        setModeLevel.setStyleSheet("background-color: #1c2125;")
-        setModeLevel.clicked.connect(self.ModeDialogSets)
-        modeHarmoniqueLayout.addWidget(setModeLevel)
+
 
         AutoAccordFrame = QFrame(self.centralLeftFrame)
         AutoAccordFrame.setContentsMargins(0, 0, 0, 0)
@@ -230,14 +214,10 @@ class EbeatzController(QMainWindow):
         AutoAccordLayout.addWidget(autoAccordTitle)
         autoAccordTitle.setAlignment(Qt.AlignCenter)
         
-        activateAutoAccordButton = QCheckBox("Activate Auto Accord")
+        activateAutoAccordButton = QRadioButton("Auto Accord Active")
         AutoAccordLayout.addWidget(activateAutoAccordButton)
         activateAutoAccordButton.setStyleSheet(
             "color: white;"
-            "QCheckBox::indicator"
-            "{"
-            "color:blue;"
-            "}"
         )
 
         spaceItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
