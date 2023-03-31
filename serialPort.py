@@ -13,7 +13,7 @@ class SerialPort():
             return [str(port).split(' ')[0] for port in ports.comports()]
 
         elif platform == 'darwin':
-             return [str(port).split(' ')[0] for port in ports.comports()]
+             return [str(port).split(' ')[0] for port in ports.comports() if "usb" in str(port)]
 
         elif platform == 'linux' or platform == 'linux2':
             return [str(port).split(' ')[0] for port in ports.comports()]
@@ -36,14 +36,15 @@ class SerialPort():
         data = self.ser.readline().decode('utf-8')
         print(data)
     
-'''
+
 TestSp = SerialPort()
-ser = serial.Serial('/dev/ttyACM0', baudrate=9600)
+ser = serial.Serial('/dev/ttyACM1', baudrate=9600)
+Lum = 0
 TestSp.ser = ser
-while True:
-    TestSp.sendCommand("High\n")
-    time.sleep(2)
-    TestSp.sendCommand("Low\n")
-    time.sleep(2)
+while Lum <=255:
+    cmd = "LUM" + str(Lum) + "\n"
+    TestSp.sendCommand(cmd)
+    time.sleep(0.1)
     TestSp.readline()
-'''
+    print(Lum)
+    Lum += 10

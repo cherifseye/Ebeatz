@@ -1,3 +1,4 @@
+from time import sleep
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QFrame, 
                             QComboBox, QPushButton, QLabel, QCheckBox, QDialog, QLineEdit, 
                             QRadioButton, QSpacerItem, QSizePolicy)
@@ -130,10 +131,18 @@ class EbeatzController(QMainWindow):
         ser = serial.Serial(self.listPortAvalaible.currentText())
         self.EbeatzSerial.ser = ser
         #print(self.EbeatzSerial.portIsOpen())
+        Lum = 0
 
+        while Lum <=255:
+            cmd = "LUM" + str(Lum) + "\n"
+            self.EbeatzSerial.sendCommand(cmd)
+            sleep(0.1)
+            print("Brightness Test Level: ", Lum, " Test successfully accomplished")
+            Lum += 1
     def endCommunication(self):
         self.EbeatzSerial.__closePort__()
         print(self.EbeatzSerial.portIsOpen())
+        
 
 
     def setCentralLeftFrame(self):
