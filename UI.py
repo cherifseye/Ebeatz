@@ -7,6 +7,7 @@ from PyQt5.QtGui import QIcon, QFont
 import pyqtgraph as pg
 import serial
 from serialPort import SerialPort
+from Arduino_Threading import Arduino
 
 
 class EbeatzController(QMainWindow):
@@ -17,6 +18,8 @@ class EbeatzController(QMainWindow):
         self.setMainWidget()
         self.setCentralRightFrame()
         self.setCentralLeftFrame()
+        self.frequenceInt = 0
+        self.listFrequences = []
         
     
     def initUI(self):
@@ -80,6 +83,7 @@ class EbeatzController(QMainWindow):
         self.openCommunication.setText("Ouvrir Port")
         self.openCommunication.setMinimumHeight(30)
         self.openCommunication.clicked.connect(self.establishCommunication)
+        self.openCommunication.clicked.connect(self.sendthread)
         self.openCommunication.setStyleSheet(
             "QPushButton"
             "{"
@@ -131,17 +135,15 @@ class EbeatzController(QMainWindow):
         ser = serial.Serial(self.listPortAvalaible.currentText())
         self.EbeatzSerial.ser = ser
         #print(self.EbeatzSerial.portIsOpen())
-        Lum = 0
 
-        while Lum <=255:
-            cmd = "LUM" + str(Lum) + "\n"
-            self.EbeatzSerial.sendCommand(cmd)
-            sleep(0.1)
-            print("Brightness Test Level: ", Lum, " Test successfully accomplished")
-            Lum += 1
     def endCommunication(self):
-        self.EbeatzSerial.__closePort__()
-        print(self.EbeatzSerial.portIsOpen())
+        try:
+            self.thread.exiting = True
+            self.openCommunication.setEnabled(True)
+            #self.EbeatzSerial.__closePort__()
+            #print(self.EbeatzSerial.portIsOpen())
+        except:
+            pass
         
 
 
@@ -233,13 +235,13 @@ class EbeatzController(QMainWindow):
         self.centralLeftLayout.addItem(spaceItem)
     
     def frequencyDialogSets(self):
-        frequencyDialog = QDialog(self)
-        frequencyDialog.setWindowTitle("Set Frequency")
-        frequencyDialog.setStyleSheet('background-color: black')
+        self.frequencyDialog = QDialog(self)
+        self.frequencyDialog.setWindowTitle("Set Frequency")
+        self.frequencyDialog.setStyleSheet('background-color: black')
         #self.setGeometry(100, 100, 100, 100)
 
-        vbox = QVBoxLayout(frequencyDialog)
-        self.line_edit = QLineEdit(frequencyDialog)
+        vbox = QVBoxLayout(self.frequencyDialog)
+        self.line_edit = QLineEdit(self.frequencyDialog)
         self.line_edit.setFixedHeight(60)
         self.line_edit.setStyleSheet(
             "background-color: black;"
@@ -251,9 +253,9 @@ class EbeatzController(QMainWindow):
         vbox.addWidget(self.line_edit)
   
         grid_layout = [
-            ['7', '8', '9'],
-            ['4', '5', '6'],
-            ['1', '2', '3'],
+            ['7', '8', '9' ],
+            ['4', '5', '6' ],
+            ['1', '2', '3' ],
             ['0', '.', 'OK']
         ]
         font  = QFont()
@@ -264,11 +266,11 @@ class EbeatzController(QMainWindow):
             hbox = QHBoxLayout()
             for item in row:
                 button = QPushButton(item)
-                button.setFixedSize(50, 50)
+                button.setFixedSize(60, 60)
                 button.setStyleSheet(
                     "QPushButton"
                     "{"
-                    "border-radius: 25px;"
+                    "border-radius: 30px;"
                     "background-color: gray;"
                     "color: white;"
                     "}"
@@ -278,8 +280,12 @@ class EbeatzController(QMainWindow):
                         "QPushButton"
                         "{"
                         "background-color: orange;"
-                        "border-radius: 25px;"
+                        "border-radius: 30px;"
                         "color: white;"
+                        "}"
+                        "QPushButton::pressed"
+                        "{"
+                        "background-color:green;"
                         "}"
                     )
                 button.setFont(font)
@@ -288,7 +294,12 @@ class EbeatzController(QMainWindow):
             vbox.addLayout(hbox)
 
     
-        frequencyDialog.exec_()
+        self.frequencyDialog.exec_()
+
+    def changeMode(self):
+        if self.sender().isChecked():
+            self.EbeatzSerial.sendCommand("MOD2\n")
+
 
     def ModeDialogSets(self):
         modeDialog = QDialog(self)
@@ -318,7 +329,35 @@ class EbeatzController(QMainWindow):
     def button_clicked(self):
         button = self.sender()
         if button.text() == 'OK':
-            pass
-        
+            #self.thread.exiting = True
+            button.clicked.connect(self.change_frequence)
+            button.clicked.connect(self.frequencyDialog.close)
         else:
             self.line_edit.setText(self.line_edit.text() + button.text())
+
+    def change_frequence(self):
+        frequence_apply = round(float(self.line_edit.text()))
+        if frequence_apply < 80 or frequence_apply > 120:
+            pass
+        else:
+            cmd = "CON" + str(frequence_apply) + "\n"
+            self.EbeatzSerial.sendCommand(cmd)
+            sleep(0.1)
+
+    def sendthread(self):
+        self.thread = Arduino()
+        self.thread.data_received.connect(self.signal_Accepted)
+        self.thread.start()
+        self.openCommunication.setEnabled(False)
+
+    def signal_Accepted(self):
+        try:
+            self.cmd = "FREQ\n"
+            self.EbeatzSerial.sendCommand(self.cmd)
+            self.frequenceInt = int(self.EbeatzSerial.readline())
+            self.listFrequences.append(self.frequenceInt)
+            p1 = self.graph.plot(self.listFrequences, pen=pg.mkPen(255, 0, 0))
+            self.frequenceValueText.setText(str(self.frequenceInt)+ " Hz")
+        
+        except:
+            pass

@@ -34,17 +34,30 @@ class SerialPort():
 
     def readline(self):
         data = self.ser.readline().decode('utf-8')
-        print(data)
+        return data
     
 
 TestSp = SerialPort()
 ser = serial.Serial('/dev/ttyACM1', baudrate=9600)
 Lum = 0
 TestSp.ser = ser
+'''
+while True:
+    TestSp.sendCommand("FREQ\n")
+    time.sleep(1)
+    print(type(TestSp.readline()))
+    cmd_consigne = "CON" + str(Lum) + "\n"
+    TestSp.sendCommand(cmd_consigne)
+    time.sleep(1)
+    Lum += 10
+    if Lum > 255:
+        break
+
+    ----------------------------------------------
 while Lum <=255:
     cmd = "LUM" + str(Lum) + "\n"
     TestSp.sendCommand(cmd)
     time.sleep(0.1)
     TestSp.readline()
     print(Lum)
-    Lum += 10
+    Lum += 10'''

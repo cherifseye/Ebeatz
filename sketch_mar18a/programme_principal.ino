@@ -95,9 +95,14 @@ void loop() {
   // PID update si le mode auto accord est activé
   Setpoint = consigne;
   if (Serial.available()){
-    String_cmd = Serial.readStringUntil('\n');
-    if (String_cmd == "FREQ"){
+    String cmd = Serial.readStringUntil('\n');
+    if (if cmd.startsWith("FRE")){
       Serial.println(freqency);
+    }else if (cmd.startsWith("CON")){
+      consigne = cmd.substring(3).toInt();
+    }else if (cmd.startsWith("MOD")){
+      if (cmd.substring(3).toInt() == 2){
+       modeChange();
     }
 
   }

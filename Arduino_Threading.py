@@ -23,4 +23,4 @@ class Arduino(QThread):
             if self.exiting:
                break
            
-            QThread.msleep(400)
+            QThread.msleep(200)
